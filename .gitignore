@@ -1,4 +1,4 @@
-node_modules
-.vscode
 .dev-server
 .github
+.vscode
+node_modules
