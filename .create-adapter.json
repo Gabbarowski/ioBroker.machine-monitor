@@ -1,0 +1,41 @@
+{
+	"cli": true,
+	"target": "directory",
+	"adapterName": "mashine-monitor",
+	"title": "Mashine Monitor",
+	"description": "Interact with Mashines",
+	"keywords": [
+		"Maschine metering and messaging"
+	],
+	"expert": "no",
+	"features": [
+		"adapter"
+	],
+	"adminFeatures": [],
+	"type": "iot-systems",
+	"startMode": "daemon",
+	"connectionType": "local",
+	"dataSource": "poll",
+	"connectionIndicator": "no",
+	"language": "JavaScript",
+	"adminReact": "yes",
+	"tools": [
+		"ESLint",
+		"type checking"
+	],
+	"releaseScript": "yes",
+	"devServer": "yes",
+	"devServerPort": 8081,
+	"indentation": "Tab",
+	"quotes": "double",
+	"es6class": "yes",
+	"authorName": "Daniel Grabasch",
+	"authorGithub": "gabbarowski",
+	"authorEmail": "daniel55555@freenet.de",
+	"gitRemoteProtocol": "HTTPS",
+	"gitCommit": "no",
+	"defaultBranch": "main",
+	"license": "MIT License",
+	"dependabot": "no",
+	"creatorVersion": "2.1.1"
+}

@@ -1,0 +1,85 @@
+{
+	"common": {
+		"name": "mashine-monitor",
+		"version": "0.0.1",
+		"news": {
+			"0.0.1": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"zh-cn": "首次出版"
+			}
+		},
+		"title": "Mashine Monitor",
+		"titleLang": {
+			"en": "Mashine Monitor",
+			"de": "Maschinenmonitor",
+			"ru": "Машинный монитор",
+			"pt": "Monitor de Máquina",
+			"nl": "Mashine-monitor",
+			"fr": "Moniteur de machine",
+			"it": "Monitor della macchina",
+			"es": "Monitor de máquina",
+			"pl": "Monitor maszyny",
+			"zh-cn": "机器监视器"
+		},
+		"desc": {
+			"en": "Interact with Mashines",
+			"de": "Interagiere mit Maschinen",
+			"ru": "Взаимодействие с машинами",
+			"pt": "Interaja com Mashines",
+			"nl": "Interactie met Mashines",
+			"fr": "Interagissez avec Mashines",
+			"it": "Interagisci con Mashines",
+			"es": "Interactuar con Mashine",
+			"pl": "Wejdź w interakcję z maszynami",
+			"zh-cn": "与 Mashines 互动"
+		},
+		"authors": [
+			"Daniel Grabasch <daniel55555@freenet.de>"
+		],
+		"keywords": [
+			"Maschine metering and messaging"
+		],
+		"license": "MIT",
+		"platform": "Javascript/Node.js",
+		"main": "main.js",
+		"icon": "mashine-monitor.png",
+		"enabled": true,
+		"extIcon": "https://raw.githubusercontent.com/gabbarowski/ioBroker.mashine-monitor/main/admin/mashine-monitor.png",
+		"readme": "https://github.com/gabbarowski/ioBroker.mashine-monitor/blob/main/README.md",
+		"loglevel": "info",
+		"mode": "daemon",
+		"type": "iot-systems",
+		"compact": true,
+		"connectionType": "local",
+		"dataSource": "poll",
+		"materialize": true,
+		"adminUI": {
+            "config": "json"
+        },
+		"eraseOnUpload": true,
+		"dependencies": [
+			{
+				"js-controller": ">=2.0.0"
+			}
+		],
+		"globalDependencies": [
+            {
+                "admin": ">=5.1.28"
+            }
+        ]
+	},
+	"native": {
+		"option1": true,
+		"option2": "42"
+	},
+	"objects": [],
+	"instanceObjects": []
+}
