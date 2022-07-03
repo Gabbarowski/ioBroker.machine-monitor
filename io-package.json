@@ -77,8 +77,8 @@
         ]
 	},
 	"native": {
-		"option1": true,
-		"option2": "42"
+		"observeObject": "", 
+		"observingTime": 0
 	},
 	"objects": [],
 	"instanceObjects": []

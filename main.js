@@ -7,6 +7,12 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
+const { on } = require("events");
+
+let instance = null;
+const hysterese = 5;
+const currentStatus = {
+}
 
 // Load your modules here, e.g.:
 // const fs = require("fs");
@@ -32,64 +38,17 @@ class MashineMonitor extends utils.Adapter {
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	async onReady() {
-		// Initialize your adapter here
-
-		// The adapters config (in the instance object everything under the attribute "native") is accessible via
-		// this.config:
-		this.log.info("config option1: " + this.config.option1);
-		this.log.info("config option2: " + this.config.option2);
-
-		/*
-		For every state in the system there has to be also an object of type state
-		Here a simple template for a boolean variable named "testVariable"
-		Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
-		*/
-		await this.setObjectNotExistsAsync("testVariable", {
-			type: "state",
-			common: {
-				name: "testVariable",
-				type: "boolean",
-				role: "indicator",
-				read: true,
-				write: true,
-			},
-			native: {},
-		});
-
-		// In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-		this.subscribeStates("testVariable");
-		// You can also add a subscription for multiple states. The following line watches all states starting with "lights."
-		// this.subscribeStates("lights.*");
-		// Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
-		// this.subscribeStates("*");
-
-		/*
-			setState examples
-			you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
-		*/
-		// the variable testVariable is set to true as command (ack=false)
-		await this.setStateAsync("testVariable", true);
-
-		// same thing, but the value is flagged "ack"
-		// ack should be always set to true if the value is received from or acknowledged from the target system
-		await this.setStateAsync("testVariable", { val: true, ack: true });
-
-		// same thing, but the state is deleted after 30s (getState will return null afterwards)
-		await this.setStateAsync("testVariable", { val: true, ack: true, expire: 30 });
-
-		// examples for the checkPassword/checkGroup functions
-		let result = await this.checkPasswordAsync("admin", "iobroker");
-		this.log.info("check user admin pw iobroker: " + result);
-
-		result = await this.checkGroupAsync("admin", "admin");
-		this.log.info("check group user admin group admin: " + result);
+		instance = this;
+		this.buildObjects()
+		this.subscribeStates("*")
+		this.subscribeForeignStatesAsync(this.config.observeObject);
 	}
 
 	/**
 	 * Is called when adapter shuts down - callback has to be called under any circumstances!
 	 * @param {() => void} callback
 	 */
-	onUnload(callback) {
+	onUnload(callback) { 
 		try {
 			// Here you must clear all timeouts or intervals that may still be active
 			// clearTimeout(timeout1);
@@ -97,7 +56,7 @@ class MashineMonitor extends utils.Adapter {
 			// ...
 			// clearInterval(interval1);
 
-			callback();
+			callback(); 
 		} catch (e) {
 			callback();
 		}
@@ -105,20 +64,20 @@ class MashineMonitor extends utils.Adapter {
 
 	// If you need to react to object changes, uncomment the following block and the corresponding line in the constructor.
 	// You also need to subscribe to the objects with `this.subscribeObjects`, similar to `this.subscribeStates`.
-	// /**
-	//  * Is called if a subscribed object changes
-	//  * @param {string} id
-	//  * @param {ioBroker.Object | null | undefined} obj
-	//  */
-	// onObjectChange(id, obj) {
-	// 	if (obj) {
-	// 		// The object was changed
-	// 		this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
-	// 	} else {
-	// 		// The object was deleted
-	// 		this.log.info(`object ${id} deleted`);
-	// 	}
-	// }
+	 /**
+	  * Is called if a subscribed object changes
+	  * @param {string} id
+	  * @param {ioBroker.Object | null | undefined} obj
+	  */
+/* 	 onObjectChange(id, obj) {
+	 	if (obj) {
+	 		// The object was changed
+	 		this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
+	 	} else {
+	 		// The object was deleted
+	 		this.log.info(`object ${id} deleted`);
+	 	}
+	 } */
 
 	/**
 	 * Is called if a subscribed state changes
@@ -126,13 +85,36 @@ class MashineMonitor extends utils.Adapter {
 	 * @param {ioBroker.State | null | undefined} state
 	 */
 	onStateChange(id, state) {
-		if (state) {
+		if(id === this.config.observeObject) {
+			this.checkIsMashineStartet();
+			return;
+		}
+		if(state === null || state === undefined) {
+			return;
+		}
+		if(id === this.namespace+".machineCurrent") {
+			console.log("Wert geändert")
+			currentStatus.mashineCurrent = state.val;
+		}
+		/* 
+		if(id === this.adapterDir +".machineStartTime") {
+			currentStatus.machineStartTime = state?.val;
+		} */
+
+		if(id === this.namespace+".machineStopTime") {
+			currentStatus.machineStopTime = state.val;
+		}
+
+		if(id === this.namespace+".mashineWh") {
+			currentStatus.machineWh = state.val;
+		}
+/* 		if (state) {
 			// The state was changed
 			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
 		} else {
 			// The state was deleted
 			this.log.info(`state ${id} deleted`);
-		}
+		} */
 	}
 
 	// If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
@@ -153,6 +135,106 @@ class MashineMonitor extends utils.Adapter {
 	// 	}
 	// }
 
+	buildObjects() {
+		this.setObjectNotExistsAsync('machineWh', 
+		{
+			type: "state",
+			common: {
+				name: "Mashine Wh",
+				role: "value",
+				type: "number",
+				read: true,
+				write: true,
+				def: 0
+			},
+			native: {}
+		})
+
+		this.setObjectNotExistsAsync('mashineRun',
+			{
+				type: "state",
+				common: {
+					name: "Mashine is running",
+					role: "state",
+					type: "boolean",
+					read: true,
+					write: true,
+					def: false
+				},
+				native: {} 
+			}
+		)
+
+		this.setObjectNotExistsAsync('machineCurrent', 
+		{
+			type: "state",
+			common: {
+				name: "Mashine current power",
+				role: "value",
+				type: "number",
+				read: true,
+				write: true,
+				def: 0
+			},
+			native: {}
+		})
+
+		this.setObjectNotExistsAsync('machineStartTime', 
+		{
+			type: "state",
+			common: {
+				name: "Mashine is startet on",
+				role: "value",
+				type: "number",
+				read: true,
+				write: true,
+				def: 0
+			},
+			native: {}
+		})
+
+		this.setObjectNotExistsAsync('machineStopTime', 
+		{
+			type: "state",
+			common: {
+				name: "Mashine is stopped at",
+				role: "value",
+				type: "number",
+				read: true,
+				write: true,
+				def: 0
+			},
+			native: {}
+		})
+	}
+
+	checkIsMashineStartet() {
+		let currentPower = 0;
+
+		const own = this;
+		this.getForeignStateAsync(this.config.observeObject,function (err, obj) {
+			currentPower = obj.val;
+			own.setStateAsync("machineCurrent", {val: currentPower, ack: false});
+			own.getStateAsync("mashineRun", (e,obj) => {
+				if(!obj.val && currentPower > hysterese) {
+					own.setStateAsync("mashineRun", {val: true, ack: false});
+					own.setStateAsync("machineStartTime", {val: new Date().getTime(), ack: false});
+					own.setStateAsync("machineStopTime", {val: new Date().getTime() + 60000, ack: false});
+					own.setTimeout(checkIsMashineRunning, 500)
+				}
+			})
+/* 		if(currentPower > hysterese && !await  {
+			own.setStateAsync("mashineRun", {val: true, ack: false});
+			own.setStateAsync("mashineStartTime", {val: new Date().getTime(), ack: false} );
+/* 			sendMessage(startMessages[getRandomIntInclusive(0,startMessages.length-1)])
+			setTimeout(checkRunning,1000); */
+		} )
+		
+
+	}
+	
+
+
 }
 
 if (require.main !== module) {
@@ -164,4 +246,19 @@ if (require.main !== module) {
 } else {
 	// otherwise start the instance directly
 	new MashineMonitor();
+}
+
+function checkIsMashineRunning() {
+	console.log(currentStatus.mashineCurrent)
+	if(currentStatus.mashineCurrent > hysterese) {
+			instance.setStateAsync("machineStopTime",  {val: new Date().getTime() + 60000, ack: false})
+			setTimeout(checkIsMashineRunning, 500)
+			return;
+		}
+	if(currentStatus.mashineStopTime < new Date().getTime()) {
+		instance.setStateAsync("mashineRun", {val: false, ack: false});
+	} else {
+		setTimeout(checkIsMashineRunning, 500)
+	}
+
 }

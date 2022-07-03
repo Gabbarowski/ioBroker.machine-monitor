@@ -1,3 +1,48 @@
 {
-    
+    "i18n": true,
+    "type": "tabs",
+    "items": {
+        "_options": {
+            "type": "panel",
+            "label": "Options",
+            "items": {
+                "observeObject": {
+                    "type": "text",
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 6,
+                    "label": "Observing Object",
+                    "help": "Please enter your object who sends the Power. (Watt)"
+                    },
+                "observingTime": {
+                    "type": "number",
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 6,
+                    "default": 10,
+                    "label": "Observing Time in seconds",
+                    "help": "Is the mashine starting checked some seconds the current situation. Shorter time could need more ioBroker Power. Recommendation is 10s"
+                },
+                "discordBotToken": {
+                    "newLine": true,
+                    "type": "text",
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 6,
+                    "default": "10",
+                    "label": "Observing Time in seconds",
+                    "help": "If you want to send message via Discord Bot. Put your token inside this config"
+                },
+                "_ioBrokerKursBanner": {
+                    "newLine": true,
+                    "type": "staticImage",
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 6,
+                    "href": "https://iobroker.grabasch.com",
+                    "src": "https://cdn.pixabay.com/photo/2022/01/05/16/58/butterfly-6917552_1280.jpg"
+                }
+            }
+        }
+    }
 }
